@@ -6,6 +6,9 @@ from PIL import Image
 import urllib.request
 import pandas as pd
 import os
+import ssl
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 #Obtiene el nombre de la imagen de la URL
 def getNombreImagen(url):

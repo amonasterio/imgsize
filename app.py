@@ -71,6 +71,7 @@ if csv is not None:
             dict={}
             dict["url"]=url 
             dct_arr.append(dict)
+            st.warning(e.args[0])
             st.warning("No se ha podido obtener el tamaño de: "+url)
             
         time.sleep(0.5)

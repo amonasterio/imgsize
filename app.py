@@ -7,7 +7,7 @@ import urllib.request
 import pandas as pd
 import os
 import ssl
-
+#Para que no haya problemas al descargar las imágenes
 ssl._create_default_https_context = ssl._create_unverified_context
 
 #Obtiene el nombre de la imagen de la URL
@@ -45,36 +45,28 @@ if csv is not None:
             dict={}
             #Obtenemos la imagen
             data_headers ={"User-Agent":"Mozilla/5.0"}
-            nombre=getNombreImagen(url)
-            st.write(nombre)
-            if os.path.exists(nombre):
-                st.success("Imagen descargada")
-                pass
-            else:
-                st.write("NO exixte fichero")
-                with st.spinner("Please wait we are downloading the img."):
-                    st.write("entra")
-                    urllib.request.urlretrieve(url,nombre)
-                st.success("Imagen descargada")
-                im=Image.open(nombre)
-                #Obtenemos el ancho y el alto
-                width, height = im.size
-                #Obtenemos su peso
-                peso=getPesoKB(nombre)
-                im.close()
-                #Eliminamos el fichero de la imagen
-                eliminaFichero(nombre)
-                dict["url"]=url
-                dict["nombre"]=nombre
-                dict["pesoKB"]=peso
-                dict["width"]=width
-                dict["height"]=height
-                dct_arr.append(dict)
+            nombre=getNombreImagen(url) 
+            urllib.request.urlretrieve(url,nombre)
+            st.success("Imagen descargada: "+url)
+            im=Image.open(nombre)
+            #Obtenemos el ancho y el alto
+            width, height = im.size
+            #Obtenemos su peso
+            peso=getPesoKB(nombre)
+            im.close()
+            #Eliminamos el fichero de la imagen
+            eliminaFichero(nombre)
+            dict["url"]=url
+            dict["nombre"]=nombre
+            dict["pesoKB"]=peso
+            dict["width"]=width
+            dict["height"]=height
+            dct_arr.append(dict)
         except  Exception as e:
             dict={}
             dict["url"]=url 
             dct_arr.append(dict)
-            st.warning("No se ha podido obtener el tamaño de: "+url)
+            st.warning("Error al procesar la imagen: "+url)
             
         time.sleep(0.5)
     df = pd.DataFrame(dct_arr)

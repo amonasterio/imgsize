@@ -50,6 +50,7 @@ if csv is not None:
             else:
                 st.write("NO exixte fichero")
                 with st.spinner("Please wait we are downloading the img."):
+                    st.write("entra")
                     urllib.request.urlretrieve(url,nombre)
                 st.success("Imagen descargada")
                 im=Image.open(nombre)

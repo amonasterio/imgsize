@@ -43,10 +43,12 @@ if csv is not None:
             #Obtenemos la imagen
             data_headers ={"User-Agent":"Mozilla/5.0"}
             nombre=getNombreImagen(url)
+            st.write(nombre)
             if os.path.exists(nombre):
                 st.success("Imagen descargada")
                 pass
             else:
+                st.write("NO exixte fichero")
                 with st.spinner("Please wait we are downloading the img."):
                     urllib.request.urlretrieve(url,nombre)
                 st.success("Imagen descargada")

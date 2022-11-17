@@ -5,6 +5,7 @@ import os
 from PIL import Image
 import urllib.request
 import pandas as pd
+import os
 
 #Obtiene el nombre de la imagen de la URL
 def getNombreImagen(url):
@@ -42,26 +43,33 @@ if csv is not None:
             #Obtenemos la imagen
             data_headers ={"User-Agent":"Mozilla/5.0"}
             nombre=getNombreImagen(url)
-            urllib.request.urlretrieve(url,nombre)
-            im=Image.open(nombre)
-            #Obtenemos el ancho y el alto
-            width, height = im.size
-            #Obtenemos su peso
-            peso=getPesoKB(nombre)
-            im.close()
-            #Eliminamos el fichero de la imagen
-            eliminaFichero(nombre)
-            dict["url"]=url
-            dict["nombre"]=nombre
-            dict["pesoKB"]=peso
-            dict["width"]=width
-            dict["height"]=height
-            dct_arr.append(dict)
+            if os.path.exists(nombre):
+                st.success("Imagen descargada")
+                pass
+            else:
+                with st.spinner("Please wait we are downloading the img."):
+                    urllib.request.urlretrieve(url,nombre)
+                st.success("Imagen descargada")
+                im=Image.open(nombre)
+                #Obtenemos el ancho y el alto
+                width, height = im.size
+                #Obtenemos su peso
+                peso=getPesoKB(nombre)
+                im.close()
+                #Eliminamos el fichero de la imagen
+                eliminaFichero(nombre)
+                dict["url"]=url
+                dict["nombre"]=nombre
+                dict["pesoKB"]=peso
+                dict["width"]=width
+                dict["height"]=height
+                dct_arr.append(dict)
         except  Exception as e:
             dict={}
             dict["url"]=url 
             dct_arr.append(dict)
             st.warning("No se ha podido obtener el tamaño de: "+url)
+            
         time.sleep(0.5)
     df = pd.DataFrame(dct_arr)
     st.write(df)

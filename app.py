@@ -1,10 +1,8 @@
 #Dado un CSV con un listado de URL de imágenes, devuelve su peso, ancho y alto
 import streamlit as st
 import time 
-import os
 from PIL import Image
 import pandas as pd
-import os
 from urllib.request import Request, urlopen
 from io import BytesIO
 import ssl
@@ -19,6 +17,11 @@ def getNombreImagen(url):
         nombre=nombre[:index]
     return nombre
 
+#Devuelve el peso en KB
+def getPesoKB(bytes):
+    pesoKB=0
+    pesoKB=round(len(bytes)/1024,2)
+    return pesoKB
 
 st.set_page_config(
    page_title="Obtener peso, alto y ancho de un listado de URL de imágenes",
@@ -40,12 +43,12 @@ if csv is not None:
             #Obtenemos la imagen
             nombre=getNombreImagen(url) 
             request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            webpage = urlopen(request_site).read()
-            im = Image.open(BytesIO(webpage))  
+            bytes = urlopen(request_site).read()
+            im = Image.open(BytesIO(bytes))  
             #Obtenemos el ancho y el alto
             width, height = im.size
             #Obtenemos su peso
-            peso=len(webpage)/1024
+            peso=getPesoKB(bytes)
             im.close()
             st.success("Imagen procesada: "+url)
             dict["url"]=url

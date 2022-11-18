@@ -3,9 +3,10 @@ import streamlit as st
 import time 
 import os
 from PIL import Image
-import urllib.request
 import pandas as pd
 import os
+from urllib.request import Request, urlopen
+from io import BytesIO
 import ssl
 #Para que no haya problemas al descargar las imágenes
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -49,19 +50,18 @@ if csv is not None:
         try:
             dict={}
             #Obtenemos la imagen
-            data_headers ={"User-Agent":"Mozilla/5.0"}
             nombre=getNombreImagen(url) 
-            urllib.request.urlretrieve(url,nombre)
-            st.write("llegaa")
-            im=Image.open(nombre)
+            request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            webpage = urlopen(request_site).read()
+            im = Image.open(BytesIO(webpage))  
             #Obtenemos el ancho y el alto
             width, height = im.size
             #Obtenemos su peso
-            peso=getPesoKB(nombre)
+            peso=len(webpage)/1024
             im.close()
             st.success("Imagen procesada: "+url)
             #Eliminamos el fichero de la imagen
-            eliminaFichero(nombre)
+            #eliminaFichero(nombre)
             dict["url"]=url
             dict["nombre"]=nombre
             dict["pesoKB"]=peso

@@ -19,10 +19,6 @@ def getNombreImagen(url):
         nombre=nombre[:index]
     return nombre
 
-#Elimina el fichero pasado como parámetro
-def eliminaFichero(myfile):
-    if os.path.isfile(myfile):
-        os.remove(myfile)
 
 #Devuelve el peso en KB de las imagen
 def getPesoKB(img_name):
@@ -52,7 +48,9 @@ if csv is not None:
             #Obtenemos la imagen
             nombre=getNombreImagen(url) 
             request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            st.write('entra')
             webpage = urlopen(request_site).read()
+            st.write('sigue')
             im = Image.open(BytesIO(webpage))  
             #Obtenemos el ancho y el alto
             width, height = im.size

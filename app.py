@@ -43,7 +43,9 @@ if csv is not None:
             #Obtenemos la imagen
             nombre=getNombreImagen(url) 
             request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            bytes = urlopen(request_site).read()
+            #Leemos la URL pero asignamos un timeout para que no se quede procesando demasiado tiempo.
+            #Hay dominios como https://eimv3-statics.yves-rocher.com/ que dejan la petición corriendo sin límite
+            bytes = urlopen(request_site,timeout=6).read()
             im = Image.open(BytesIO(bytes))  
             #Obtenemos el ancho y el alto
             width, height = im.size

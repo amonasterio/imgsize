@@ -49,7 +49,7 @@ if csv is not None:
             nombre=getNombreImagen(url) 
             request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
             st.write('entra')
-            webpage = urlopen(request_site).read()
+            webpage = urlopen(request_site,timeout='3').read()
             st.write('sigue')
             im = Image.open(BytesIO(webpage))  
             #Obtenemos el ancho y el alto

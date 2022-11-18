@@ -19,18 +19,6 @@ def getNombreImagen(url):
         nombre=nombre[:index]
     return nombre
 
-#Elimina el fichero pasado como parámetro
-def eliminaFichero(myfile):
-    if os.path.isfile(myfile):
-        os.remove(myfile)
-
-#Devuelve el peso en KB de las imagen
-def getPesoKB(img_name):
-    pesoKB=0
-    file_size = os.path.getsize(img_name)
-    if file_size:
-        pesoKB=round(file_size/1024,2)
-    return pesoKB
 
 st.set_page_config(
    page_title="Obtener peso, alto y ancho de un listado de URL de imágenes",
@@ -60,8 +48,6 @@ if csv is not None:
             peso=len(webpage)/1024
             im.close()
             st.success("Imagen procesada: "+url)
-            #Eliminamos el fichero de la imagen
-            #eliminaFichero(nombre)
             dict["url"]=url
             dict["nombre"]=nombre
             dict["pesoKB"]=peso
@@ -73,8 +59,7 @@ if csv is not None:
             dict["url"]=url 
             dct_arr.append(dict)
             if e.args is not None:
-                st.warning(str(e)+" - "+url)
-            
+                st.warning(str(e)+" - "+url)           
         time.sleep(0.5)
     df = pd.DataFrame(dct_arr)
     st.write(df)

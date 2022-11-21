@@ -28,15 +28,24 @@ st.set_page_config(
    layout="wide"
 )
 st.title("Obtener peso, alto y ancho de un listado de URL de imágenes")
-st.text("Dado un CSV con un listado de URL de imágenes, devuelve su peso (KB), ancho y alto")
+st.text("Dada una lista de URL de URL de imágenes, devuelve su peso (KB), ancho y alto")
+lista_url=st.text_area("Introduzca las URL de imágenes que desea analizar o cárguelas en un CSV",'')
 csv=st.file_uploader('CSV con imágenes a analizar', type='csv')
-if csv is not None:
-    dict={}
+addresses=[]
+#Si no hay CSV miramos el textArea
+if csv is  None:
+    if len(lista_url)>0:
+        addresses=lista_url.split('\n')
+else: 
     df_entrada=pd.read_csv(csv,header=None)
     st.write(df_entrada)
     addresses = df_entrada[0].tolist()
+if len(addresses)>0:
+    dict={}
     dct_arr=[]
-    for row in addresses:
+    #Eliminamos posibles duplicados
+    lista_img=[*set(addresses)]
+    for row in lista_img:
         url=row
         try:
             dict={}
@@ -74,4 +83,5 @@ if csv is not None:
         file_name='imagenes.csv',
         mime='text/csv'
         )
-        
+else:
+    st.warning("No ha introducido ninguna URL")      

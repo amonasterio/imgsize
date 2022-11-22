@@ -93,7 +93,8 @@ if len(addresses)>0:
                 dict["url"]=url 
                 dct_arr.append(dict)
                 if e.args is not None:
-                    st.warning(str(e)+" - "+url)           
+                    st.warning(str(e)+" - "+url)     
+                    logging.error(str(e)+" - "+url)      
             time.sleep(0.3)
         df = pd.DataFrame(dct_arr)
         st.write(df)

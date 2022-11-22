@@ -8,6 +8,10 @@ from io import BytesIO
 import ssl
 #Para que no haya problemas al descargar las imágenes
 ssl._create_default_https_context = ssl._create_unverified_context
+import logging
+logging.basicConfig(filename='test.log')
+
+MAX_URL=1000
 
 #Obtiene el nombre de la imagen de la URL
 def getNombreImagen(url):
@@ -28,10 +32,11 @@ st.set_page_config(
    layout="wide"
 )
 st.title("Obtener peso, alto y ancho de un listado de URL de imágenes")
-st.text("Dada una lista de URL de URL de imágenes, devuelve su peso (KB), ancho y alto")
+st.markdown("Dada una lista de URL de URL de imágenes, devuelve su peso (KB), ancho y alto. **Máximo "+str(MAX_URL)+" imágenes**", unsafe_allow_html=False)
 lista_url=st.text_area("Introduzca las URL de imágenes que desea analizar o cárguelas en un CSV",'')
 csv=st.file_uploader('CSV con imágenes a analizar', type='csv')
 addresses=[]
+
 #Si no hay CSV miramos el textArea
 if csv is  None:
     if len(lista_url)>0:
@@ -48,57 +53,52 @@ if len(addresses)>0:
     total_count=0
     bar = st.progress(0.0)
     longitud=len(lista_img)
-    for row in lista_img:
-        url=row
-        try:
-            total_count+=1
-            percent_complete=total_count/longitud
-            bar.progress(percent_complete)
-            dict={} 
-            #Obtenemos la imagen
-            nombre=getNombreImagen(url) 
-            request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            #Leemos la URL pero asignamos un timeout para que no se quede procesando demasiado tiempo.
-            #Hay dominios como https://eimv3-statics.yves-rocher.com/ que dejan la petición corriendo sin límite
-            bytes = urlopen(request_site,timeout=6).read()
-            im = Image.open(BytesIO(bytes))  
-            #Obtenemos el ancho y el alto
-            width, height = im.size
-            #Obtenemos su peso
-            peso=getPesoKB(bytes)
-            im.close()
-            #st.success("Imagen procesada: "+url)
-            dict["url"]=url
-            dict["nombre"]=nombre
-            dict["pesoKB"]=peso
-            dict["width"]=width
-            dict["height"]=height
-            dct_arr.append(dict)
-        #SI hay un error en la ejecución descargamos los datos que tengamos
-        except RuntimeError as e:
-            st.exception(e)
-            df = pd.DataFrame(dct_arr)
-            st.write(df)
-            st.download_button(
-                label="Descargar como CSV",
-                data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
-                file_name='imagenes.csv',
-                mime='text/csv'
-                )
-        except  Exception as e:
-            dict={}
-            dict["url"]=url 
-            dct_arr.append(dict)
-            if e.args is not None:
-                st.warning(str(e)+" - "+url)           
-        time.sleep(0.3)
-    df = pd.DataFrame(dct_arr)
-    st.write(df)
-    st.download_button(
-        label="Descargar como CSV",
-        data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
-        file_name='imagenes.csv',
-        mime='text/csv'
-        )
+    if longitud <= MAX_URL:
+        for row in lista_img:
+            url=row
+            try:
+                total_count+=1
+                percent_complete=total_count/longitud
+                bar.progress(percent_complete)
+                dict={} 
+                #Obtenemos la imagen
+                nombre=getNombreImagen(url) 
+                request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                #Leemos la URL pero asignamos un timeout para que no se quede procesando demasiado tiempo.
+                #Hay dominios como https://eimv3-statics.yves-rocher.com/ que dejan la petición corriendo sin límite
+                bytes = urlopen(request_site,timeout=6).read()
+                im = Image.open(BytesIO(bytes))  
+                #Obtenemos el ancho y el alto
+                width, height = im.size
+                #Obtenemos su peso
+                peso=getPesoKB(bytes)
+                im.close()
+                logging.info(str(total_count)+": Imagen procesada: "+url)
+                dict["url"]=url
+                dict["nombre"]=nombre
+                dict["pesoKB"]=peso
+                dict["width"]=width
+                dict["height"]=height
+                dct_arr.append(dict)
+            except  Exception as e:
+                logging.error("Error procesando imagen: "+url)  
+                dict={}
+                dict["url"]=url 
+                dct_arr.append(dict)
+                if e.args is not None:
+                    st.warning(str(e)+" - "+url)  
+                    logging.error(str(e)+" - "+url)         
+            time.sleep(0.2)
+        df = pd.DataFrame(dct_arr)
+        st.write(df)
+        st.download_button(
+            label="Descargar como CSV",
+            data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
+            file_name='imagenes.csv',
+            mime='text/csv'
+            )
+    #Hay más de MAX_URL URL
+    else:
+        st.warning("El número máximo de URL a procesar son "+str(MAX_URL))
 else:
     st.warning("No ha introducido ninguna URL")      

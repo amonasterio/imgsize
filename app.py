@@ -36,9 +36,18 @@ if csv is not None:
     st.write(df_entrada)
     addresses = df_entrada[0].tolist()
     dct_arr=[]
+    max_url=5000
+    count=0
+    total_count=0
+    bar = st.progress(0.0)
+    longitud=len(addresses)
     for row in addresses:
         url=row
         try:
+            count+=1
+            total_count+=1
+            percent_complete=total_count/longitud
+            bar.progress(percent_complete)
             dict={}
             #Obtenemos la imagen
             nombre=getNombreImagen(url) 
@@ -52,26 +61,39 @@ if csv is not None:
             #Obtenemos su peso
             peso=getPesoKB(bytes)
             im.close()
-            st.success("Imagen procesada: "+url)
+            #st.success(str(total_count)+": Imagen procesada: "+url)
             dict["url"]=url
             dict["nombre"]=nombre
             dict["pesoKB"]=peso
             dict["width"]=width
             dict["height"]=height
             dct_arr.append(dict)
-        except  Exception as e:
+        #SI hay un error en la ejecución descargamos los datos que tengamos
+        except RuntimeError as e:
+            st.exception(e)
+            df = pd.DataFrame(dct_arr)
+            st.write(df)
+            st.download_button(
+                label="Descargar como CSV",
+                data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
+                file_name='imagenes.csv',
+                mime='text/csv'
+                )
+        except Exception as e:
             dict={}
             dict["url"]=url 
             dct_arr.append(dict)
             if e.args is not None:
                 st.warning(str(e)+" - "+url)           
-        time.sleep(0.5)
-    df = pd.DataFrame(dct_arr)
-    st.write(df)
-    st.download_button(
-        label="Descargar como CSV",
-        data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
-        file_name='imagenes.csv',
-        mime='text/csv'
-        )
-        
+        time.sleep(0.3)
+        if count==max_url or total_count==len(addresses):
+            df = pd.DataFrame(dct_arr)
+            st.write(df)
+            st.download_button(
+                label="Descargar como CSV",
+                data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
+                file_name='imagenes.csv',
+                mime='text/csv'
+                )
+            count=0
+            dct_arr=[]

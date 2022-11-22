@@ -41,7 +41,7 @@ st.text("Dada una lista de URL de URL de imágenes, devuelve su peso (KB), ancho
 lista_url=st.text_area("Introduzca las URL de imágenes que desea analizar o cárguelas en un CSV",'')
 csv=st.file_uploader('CSV con imágenes a analizar', type='csv')
 addresses=[]
-max_url=500
+max_url=5
 #Si no hay CSV miramos el textArea
 if csv is  None:
     if len(lista_url)>0:
@@ -59,6 +59,7 @@ if len(addresses)>0:
     lista_global=list(split_list(lista_img,max_url))
     total_count=0
     bar = st.progress(0.0)
+    i_b=0
     for sublista in lista_global:
         for row in sublista:
             url=row
@@ -96,15 +97,29 @@ if len(addresses)>0:
                     st.warning(str(e)+" - "+url)     
                     logging.error(str(e)+" - "+url)      
             time.sleep(0.3)
-        df = pd.DataFrame(dct_arr)
-        st.write(df)
-        num_file=total_count//max_url
-        st.download_button(
-            label="Descargar como CSV",
-            data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
-            file_name='imagenes_'+str(num_file)+'.csv',
-            mime='text/csv'
-            )
-        dct_arr=[]
+        with st.form(str(i_b)):
+            button_check = st.form_submit_button("Button to Click")
+            st.write(button_check)
+            i_b+=1
+            df = pd.DataFrame(dct_arr)
+            st.write(df)
+            num_file=total_count//max_url
+            file_name='imagenes_'+str(num_file)+'.csv'
+            '''
+            st.download_button(
+                label="Descargar como CSV",
+                data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
+                file_name='imagenes_'+str(num_file)+'.csv',
+                mime='text/csv'
+                )
+            '''
+            if button_check:
+                data=df.to_csv(file_name,index=False, decimal=",",quotechar='"').encode('utf-8'),
+            
+            dct_arr=[]  
+        # ask for input
+            
+
+
 else:
     st.warning("No ha introducido ninguna URL")      

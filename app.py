@@ -81,7 +81,7 @@ if len(addresses)>0:
                 dict["height"]=height
                 dct_arr.append(dict)
             except  Exception as e:
-                logging.error("Error procesando imagen: "+url)  
+                logging.error(str(total_count)+": Error procesando imagen: "+url)  
                 dict={}
                 dict["url"]=url 
                 dct_arr.append(dict)

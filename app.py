@@ -41,7 +41,7 @@ st.text("Dada una lista de URL de URL de imágenes, devuelve su peso (KB), ancho
 lista_url=st.text_area("Introduzca las URL de imágenes que desea analizar o cárguelas en un CSV",'')
 csv=st.file_uploader('CSV con imágenes a analizar', type='csv')
 addresses=[]
-max_url=5
+max_url=500
 #Si no hay CSV miramos el textArea
 if csv is  None:
     if len(lista_url)>0:

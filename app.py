@@ -27,6 +27,11 @@ def getPesoKB(bytes):
     pesoKB=round(len(bytes)/1024,2)
     return pesoKB
 
+def eliminaDuplicadosLista(lista):
+    if len(lista)>0:
+        lista=list(dict.fromkeys(lista))
+    return lista
+
 st.set_page_config(
    page_title="Obtener peso, alto y ancho de un listado de URL de imágenes",
    layout="wide"
@@ -49,7 +54,7 @@ if len(addresses)>0:
     dict={}
     dct_arr=[]
     #Eliminamos posibles duplicados
-    lista_img=[*set(addresses)]
+    lista_img=eliminaDuplicadosLista(addresses)
     total_count=0
     bar = st.progress(0.0)
     longitud=len(lista_img)

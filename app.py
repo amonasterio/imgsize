@@ -45,10 +45,16 @@ if len(addresses)>0:
     dct_arr=[]
     #Eliminamos posibles duplicados
     lista_img=[*set(addresses)]
+    total_count=0
+    bar = st.progress(0.0)
+    longitud=len(lista_img)
     for row in lista_img:
         url=row
         try:
-            dict={}
+            total_count+=1
+            percent_complete=total_count/longitud
+            bar.progress(percent_complete)
+            dict={} 
             #Obtenemos la imagen
             nombre=getNombreImagen(url) 
             request_site = Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -61,20 +67,31 @@ if len(addresses)>0:
             #Obtenemos su peso
             peso=getPesoKB(bytes)
             im.close()
-            st.success("Imagen procesada: "+url)
+            #st.success("Imagen procesada: "+url)
             dict["url"]=url
             dict["nombre"]=nombre
             dict["pesoKB"]=peso
             dict["width"]=width
             dict["height"]=height
             dct_arr.append(dict)
+        #SI hay un error en la ejecución descargamos los datos que tengamos
+        except RuntimeError as e:
+            st.exception(e)
+            df = pd.DataFrame(dct_arr)
+            st.write(df)
+            st.download_button(
+                label="Descargar como CSV",
+                data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
+                file_name='imagenes.csv',
+                mime='text/csv'
+                )
         except  Exception as e:
             dict={}
             dict["url"]=url 
             dct_arr.append(dict)
             if e.args is not None:
                 st.warning(str(e)+" - "+url)           
-        time.sleep(0.5)
+        time.sleep(0.3)
     df = pd.DataFrame(dct_arr)
     st.write(df)
     st.download_button(

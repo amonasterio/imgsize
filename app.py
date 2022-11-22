@@ -32,6 +32,7 @@ st.text("Dada una lista de URL de URL de imágenes, devuelve su peso (KB), ancho
 lista_url=st.text_area("Introduzca las URL de imágenes que desea analizar o cárguelas en un CSV",'')
 csv=st.file_uploader('CSV con imágenes a analizar', type='csv')
 addresses=[]
+max_url=500
 #Si no hay CSV miramos el textArea
 if csv is  None:
     if len(lista_url)>0:
@@ -46,11 +47,13 @@ if len(addresses)>0:
     #Eliminamos posibles duplicados
     lista_img=[*set(addresses)]
     total_count=0
+    count=0
     bar = st.progress(0.0)
     longitud=len(lista_img)
     for row in lista_img:
         url=row
         try:
+            count+=1
             total_count+=1
             percent_complete=total_count/longitud
             bar.progress(percent_complete)
@@ -92,13 +95,17 @@ if len(addresses)>0:
             if e.args is not None:
                 st.warning(str(e)+" - "+url)           
         time.sleep(0.3)
-    df = pd.DataFrame(dct_arr)
-    st.write(df)
-    st.download_button(
-        label="Descargar como CSV",
-        data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
-        file_name='imagenes.csv',
-        mime='text/csv'
-        )
+        if count==max_url or total_count==longitud:
+            df = pd.DataFrame(dct_arr)
+            st.write(df)
+            num_file=total_count%500
+            st.download_button(
+                label="Descargar como CSV",
+                data=df.to_csv(index=False, decimal=",",quotechar='"').encode('utf-8'),
+                file_name='imagenes_'+str(num_file)+'.csv',
+                mime='text/csv'
+                )
+            count=0
+            dct_arr=[]
 else:
     st.warning("No ha introducido ninguna URL")      

@@ -104,6 +104,6 @@ if len(addresses)>0:
             )
     #Hay más de MAX_URL URL
     else:
-        st.warning("El número máximo de URL a procesar son "+str(MAX_URL))
+        st.warning("Hay "+str(longitud)+ " URL únicas. El número máximo de URL a procesar son "+str(MAX_URL))
 else:
     st.warning("No ha introducido ninguna URL")      
